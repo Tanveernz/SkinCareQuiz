@@ -1,35 +1,35 @@
-pipeline{
+pipeline
     agent any
     tools{
         jdk 'jdk'
         nodejs 'node17'
     }
     environment {
-        SCANNER_HOME=tool 'sonar-scanner'
+                git branch: 'main', credentialsId: 'github-token', url: 'https://github.com/Tanveernz/SkinCareQuiz.git'
     }
     stages {
         stage('clean workspace'){
             steps{
-                cleanWs()
-            }
-        }
-        stage('Checkout from Git'){
+                withSonarQubeEnv('SonarQube') {
+                    sh ''' $SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=SkinCareQuiz \
+                    -Dsonar.projectKey=SkinCareQuiz '''
+                }
             steps{
-                git branch: 'main', credentialsId: 'github-token', url: 'https://github.com/Aseemakram19/starbucks-kubernetes.git'
+                git branch: 'main', credentialsId: 'github-token', url: 'https://github.com/Tanveernz/SkinCareQuiz.git'
             }
         }
         stage("Sonarqube Analysis "){
             steps{
-                withSonarQubeEnv('SonarQube') {
-                    sh ''' $SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=starbucks \
-                    -Dsonar.projectKey=starbucks '''
+                       sh "docker build -t skincarequiz ."
+                       sh "docker tag skincarequiz tanveernz/skincarequiz:latest "
+                       sh "docker push tanveernz/skincarequiz:latest "
                 }
             }
         }
         stage("quality gate"){
            steps {
                 script {
-                    waitForQualityGate abortPipeline: false, credentialsId: 'Sonar-token' 
+                sh "trivy image tanveernz/skincarequiz:latest > trivyimage.txt" 
                 }
             } 
         }
@@ -41,22 +41,22 @@ pipeline{
         stage('TRIVY FS SCAN') {
             steps {
                 sh "trivy fs . > trivyfs.txt"
-            }
+                    aws eks update-kubeconfig --region ap-south-1 --name CloudeTanvi
         }
         stage("Docker Build & Push"){
             steps{
                 script{
                    withDockerRegistry(credentialsId: 'docker', toolName: 'docker'){   
-                       sh "docker build -t starbucks ."
-                       sh "docker tag starbucks aseemakram19/starbucks:latest "
-                       sh "docker push aseemakram19/starbucks:latest "
+                       sh "docker build -t skincarequiz ."
+                       sh "docker tag skincarequiz tanveernz/skincarequiz:latest "
+                       sh "docker push tanveernz/skincarequiz:latest "
                     }
                 }
             }
         }
         stage("TRIVY"){
             steps{
-                sh "trivy image aseemakram19/starbucks:latest > trivyimage.txt" 
+                sh "trivy image tanveernz/skincarequiz:latest > trivyimage.txt" 
             }
         }
         stage('Deploy to EKS Cluster') {
@@ -68,7 +68,7 @@ pipeline{
                     aws sts get-caller-identity
 
                     echo "Configuring kubectl for EKS cluster..."
-                    aws eks update-kubeconfig --region ap-south-1 --name Cloudaseem
+                    aws eks update-kubeconfig --region ap-south-1 --name CloudeTanvi
 
                     echo "Verifying kubeconfig..."
                     kubectl config view
@@ -96,16 +96,16 @@ pipeline{
             emailext (
                 subject: "Pipeline ${buildStatus}: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
                 body: """
-                    <p>This is a Jenkins starbucks CICD pipeline status.</p>
+                    <p>This is a Jenkins SkinCareQuiz CICD pipeline status.</p>
                     <p>Project: ${env.JOB_NAME}</p>
                     <p>Build Number: ${env.BUILD_NUMBER}</p>
                     <p>Build Status: ${buildStatus}</p>
                     <p>Started by: ${buildUser}</p>
                     <p>Build URL: <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>
                 """,
-                to: 'mohdaseemakram19@gmail.com',
-                from: 'mohdaseemakram19@gmail.com',
-                replyTo: 'mohdaseemakram19@gmail.com',
+                to: 'tanveernawaz222@gmail.com',
+                from: 'tanveernawaz222@gmail.com',
+                replyTo: 'tanveernawaz222@gmail.com',
                 mimeType: 'text/html',
                 attachmentsPattern: 'trivyfs.txt,trivyimage.txt'
             )
