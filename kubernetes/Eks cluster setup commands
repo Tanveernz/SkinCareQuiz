@@ -3,7 +3,7 @@
 eksctl create cluster \
   --name=Cloudaseem \
   --region=ap-south-1 \
-  --zones=ap-south-1a,ap-south-1b \
+  --zones=ap-south-1a,ap-south-1b,ap-south-1c \
   --version=1.30 \
   --without-nodegroup
 
@@ -29,7 +29,7 @@ eksctl create nodegroup \
   --nodes-max=4 \
   --node-volume-size=20 \
   --ssh-access \
-  --ssh-public-key=starbucks1 \
+  --ssh-public-key=YOUR_KEY_PAIR_NAME \
   --managed \
   --asg-access \
   --external-dns-access \

@@ -15,14 +15,16 @@ pipeline{
         }
         stage('Checkout from Git'){
             steps{
-                git branch: 'main', url: 'https://github.com/Aseemakram19/hotstar-kubernetes.git'
+                // UPDATED: use your repository
+                git branch: 'main', url: 'https://github.com/Tanveernz/SkinCareQuiz.git'
             }
         }
         stage("Sonarqube Analysis "){
             steps{
                 withSonarQubeEnv('sonar-server') {
-                    sh ''' $SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=Hotstar \
-                    -Dsonar.projectKey=Hotstar '''
+                    // UPDATED: set Sonar project name/key for this repo
+                    sh ''' $SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=SkinCareQuiz \
+                    -Dsonar.projectKey=SkinCareQuiz '''
                 }
             }
         }
@@ -53,9 +55,10 @@ pipeline{
             steps{
                 script{
                    withDockerRegistry(credentialsId: 'docker', toolName: 'docker'){   
-                       sh "docker build -t hotstar ."
-                       sh "docker tag hotstar aseemakram19/hotstar:latest "
-                       sh "docker push aseemakram19/hotstar:latest "
+                       // UPDATED: build and push using your Docker image name
+                       sh "docker build -t skincarequiz ."
+                       sh "docker tag skincarequiz tanveernz/skincarequiz:latest"
+                       sh "docker push tanveernz/skincarequiz:latest"
                     }
                 }
             }
@@ -67,7 +70,8 @@ pipeline{
         }
         stage('Deploy to container'){
             steps{
-                sh 'docker run -d --name hotstar -p 3000:3000 aseemakram19/hotstar:latest'
+                // UPDATED: run with the project's image name
+                sh 'docker run -d --name skincarequiz -p 3000:3000 tanveernz/skincarequiz:latest'
             }
         }
 
@@ -88,9 +92,10 @@ pipeline{
                     <p>Started by: ${buildUser}</p>
                     <p>Build URL: <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>
                 """,
-                to: 'mohdaseemakram19@gmail.com',
-                from: 'mohdaseemakram19@gmail.com',
-                replyTo: 'mohdaseemakram19@gmail.com',
+                // TODO: replace with your notification email address
+                to: 'tanveernawaz222@gmail.com',
+                from: 'tanveernawaz222@gmail.com',
+                replyTo: 'tanveernawaz222@gmail.com',
                 mimeType: 'text/html',
                 attachmentsPattern: 'trivyfs.txt,trivyimage.txt'
             )
