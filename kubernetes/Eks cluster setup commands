@@ -29,7 +29,7 @@ eksctl create nodegroup \
   --nodes-max=4 \
   --node-volume-size=20 \
   --ssh-access \
-  --ssh-public-key=skinCare1.pem \
+  --ssh-public-key=skinCare1 \
   --managed \
   --asg-access \
   --external-dns-access \
