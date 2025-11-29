@@ -1,7 +1,7 @@
 (a) Create EKS Cluster (without node group)
 
 eksctl create cluster \
-  --name=Cloudaseem \
+  --name=Tanveernz \
   --region=ap-south-1 \
   --zones=ap-south-1a,ap-south-1b,ap-south-1c \
   --version=1.30 \
@@ -14,13 +14,13 @@ eksctl create cluster \
 
 eksctl utils associate-iam-oidc-provider \
   --region ap-south-1 \
-  --cluster Cloudaseem \
+  --cluster Tanveernz \
   --approve
 
 c. node group
 
 eksctl create nodegroup \
-  --cluster=Cloudaseem \
+  --cluster=Tanveernz \
   --region=ap-south-1 \
   --name=node2 \
   --node-type=t3.medium \
@@ -29,7 +29,7 @@ eksctl create nodegroup \
   --nodes-max=4 \
   --node-volume-size=20 \
   --ssh-access \
-  --ssh-public-key=YOUR_KEY_PAIR_NAME \
+  --ssh-public-key=skinCare1.pem \
   --managed \
   --asg-access \
   --external-dns-access \
