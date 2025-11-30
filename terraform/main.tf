@@ -7,17 +7,14 @@ terraform {
   }
 }
 
-# Configure the AWS Provider
 provider "aws" {
   region = "ap-south-1"
 }
 
-# Create security group for the EC2 instance
 resource "aws_security_group" "ec2_security_group" {
   name        = "ec2 security group"
   description = "allow access on ports 22"
 
-  # Allow SSH access
   ingress {
     description = "ssh access"
     from_port   = 22
@@ -26,7 +23,6 @@ resource "aws_security_group" "ec2_security_group" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  # Allow all outbound traffic
   egress {
     from_port   = 0
     to_port     = 0
@@ -39,14 +35,20 @@ resource "aws_security_group" "ec2_security_group" {
   }
 }
 
-# Create EC2 instance for monitoring
 resource "aws_instance" "Monitoring_server" {
-  ami               = "ami-0f5ee92e2d63afc18"  # Amazon Linux 2023
-  instance_type     = "t3.nano"
+  ami               = "ami-0f5ee92e2d63afc18"
+  instance_type     = "t3.micro"
+  
+  # Use Spot Instance to bypass Free Tier restrictions
+  instance_market_options {
+    market_type = "spot"
+    spot_options {
+      max_price = 0.005  # Maximum bid price (very low)
+    }
+  }
+  
   security_groups   = [aws_security_group.ec2_security_group.name]
   key_name          = var.key_name
-  
-  # Disable detailed monitoring to save costs
   monitoring        = false
 
   tags = {
@@ -57,33 +59,27 @@ resource "aws_instance" "Monitoring_server" {
     ManagedBy   = "Terraform"
   }
 
-  # Lifecycle configuration
   lifecycle {
-    ignore_changes = [ami]  # Prevent recreation when AMI updates
+    ignore_changes = [ami]
   }
 }
 
-# Output the public IP address
 output "public_ip" {
-  description = "Public IP address of the monitoring server"
-  value       = aws_instance.Monitoring_server.public_ip
+  value = aws_instance.Monitoring_server.public_ip
 }
 
-# Output the instance ID
 output "instance_id" {
-  description = "ID of the EC2 instance"
-  value       = aws_instance.Monitoring_server.id
+  value = aws_instance.Monitoring_server.id
 }
 
-# Variables
 variable "key_name" {
-  description = "SSH key pair name for EC2 instance"
+  description = "SSH key pair name"
   type        = string
   default     = "skinCare1"
 }
 
 variable "instance_name" {
-  description = "Name tag for the EC2 instance"
+  description = "Name tag for the instance"
   type        = string
   default     = "Monitoring_server"
 }
