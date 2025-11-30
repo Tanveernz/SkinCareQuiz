@@ -36,8 +36,8 @@ resource "aws_security_group" "ec2_security_group" {
 }
 
 resource "aws_instance" "Monitoring_server" {
-  ami               = "ami-00bb6a80f01f03502"  
-  instance_type     = "t2.micro"  # ← FIXED: t2.micro uses fewer vCPUs
+  ami               = "ami-0f5ee92e2d63afc18"  # ← CHANGED: Amazon Linux 2023 AMI
+  instance_type     = "t2.micro"
   security_groups   = [aws_security_group.ec2_security_group.name]
   key_name          = var.key_name
   
