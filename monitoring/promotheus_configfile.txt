@@ -5,14 +5,14 @@
     static_configs:
       - targets:
           - http://prometheus.io      # Target to probe with HTTP.
-          - http://YOUR_APPLICATION_HOST:3000 # Replace with your app's URL/host.
+          - http://:3000 # Replace with your app's URL/host.
     relabel_configs:
       - source_labels: [__address__]
         target_label: __param_target
       - source_labels: [__param_target]
         target_label: instance
       - target_label: __address__
-        replacement: YOUR_BLACKBOX_HOST:9115  # Replace with your blackbox-exporter hostname:port.
+        replacement: 43.204.227.192:9090/:9115  # Replace with your blackbox-exporter hostname:port.
 
 
 -- job_name: node_exporter
