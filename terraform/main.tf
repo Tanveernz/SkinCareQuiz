@@ -7,11 +7,9 @@ terraform {
   }
 }
 
-# Configure the AWS Provider
+# Configure the AWS Provider - REMOVE access_key and secret_key
 provider "aws" {
-  region     = "ap-south-1"
-  access_key = var.access_key
-  secret_key = var.secret_key
+  region = "ap-south-1"
 }
 
 # create security group for the ec2 instance
@@ -42,7 +40,7 @@ resource "aws_security_group" "ec2_security_group" {
 
 resource "aws_instance" "Monitoring_server" {
   ami               = "ami-00bb6a80f01f03502"  
-  instance_type     = "t3.micro"  # ← CHANGED from t2.medium to t3.micro
+  instance_type     = "t3.micro"
   security_groups   = [aws_security_group.ec2_security_group.name]
   key_name          = var.key_name
   
@@ -56,19 +54,7 @@ output "public_ip" {
   value = aws_instance.Monitoring_server.public_ip
 }
 
-# Variables
-variable "access_key" {
-  description = "AWS access key"
-  type        = string
-  sensitive   = true
-}
-
-variable "secret_key" {
-  description = "AWS secret key"
-  type        = string
-  sensitive   = true
-}
-
+# Variables - KEEP ONLY key_name and instance_name, REMOVE access_key and secret_key
 variable "key_name" {
   description = "SSH key pair name"
   type        = string
