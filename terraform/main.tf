@@ -42,7 +42,7 @@ resource "aws_security_group" "ec2_security_group" {
 # Create EC2 instance for monitoring
 resource "aws_instance" "Monitoring_server" {
   ami               = "ami-0f5ee92e2d63afc18"  # Amazon Linux 2023
-  instance_type     = "t2.micro"
+  instance_type     = "t3.nano"
   security_groups   = [aws_security_group.ec2_security_group.name]
   key_name          = var.key_name
   
