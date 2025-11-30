@@ -2,18 +2,17 @@ pipeline {
     agent any
 
     environment {
-        AWS_ACCESS_KEY_ID     = credentials('AWS_ACCESS_KEY_ID')
-        AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
+        AWS_ACCESS_KEY_ID     = credentials('aws-access-key-id')
+        AWS_SECRET_ACCESS_KEY = credentials('aws-secret-access-key')
     }
 
     parameters {
-        string(name: 'action', defaultValue: 'apply', description: 'terraform action: apply or destroy')
+        choice(name: 'action', choices: ['apply', 'destroy'], description: 'Terraform action: apply or destroy')
     }
 
     stages {
         stage('Checkout from Git') {                        
             steps {
-                // UPDATED: use your repository
                 git branch: 'main', credentialsId: 'github-token', url: 'https://github.com/Tanveernz/SkinCareQuiz.git'
             }
         }
@@ -27,11 +26,7 @@ pipeline {
         stage('terraform init') {
             steps {
                 dir('terraform') {
-                    sh '''
-                    terraform init \
-                    -backend-config="access_key=$AWS_ACCESS_KEY_ID" \
-                    -backend-config="secret_key=$AWS_SECRET_ACCESS_KEY"
-                    '''
+                    sh 'terraform init'
                 }
             }
         }
@@ -47,11 +42,7 @@ pipeline {
         stage('terraform plan') {
             steps {
                 dir('terraform') {
-                    sh '''
-                    terraform plan \
-                    -var="access_key=$AWS_ACCESS_KEY_ID" \
-                    -var="secret_key=$AWS_SECRET_ACCESS_KEY"
-                    '''
+                    sh 'terraform plan'
                 }
             }
         }
@@ -59,22 +50,21 @@ pipeline {
         stage('terraform apply/destroy') {
             steps {
                 dir('terraform') {
-                    sh '''
-                    terraform ${action} --auto-approve \
-                    -var="access_key=$AWS_ACCESS_KEY_ID" \
-                    -var="secret_key=$AWS_SECRET_ACCESS_KEY"
-                    '''
+                    script {
+                        if (params.action == 'apply') {
+                            sh 'terraform apply -auto-approve'
+                        } else if (params.action == 'destroy') {
+                            sh 'terraform destroy -auto-approve'
+                        }
+                    }
                 }
             }
         }
     }
 
     post {
-        success {
-            echo '✅ terraform execution completed successfully!'
-        }
-        failure {
-            echo '❌ terraform execution failed! Check the logs.'
+        always {
+            echo "Terraform ${currentBuild.currentResult == 'SUCCESS' ? '✅ completed successfully!' : '❌ execution failed! Check the logs.'}"
         }
     }
 }
